@@ -89,8 +89,12 @@ def main():
     if not repo or not REPO_RE.fullmatch(repo):
         die('First configure your GitHub repo with: brack-update --repo OWNER/REPOSITORY')
     print('Checking https://github.com/'+repo+'/releases ...')
-    try: release=json.loads(get('https://api.github.com/repos/'+repo+'/releases/latest',1024*1024))
-    except (urllib.error.URLError,TimeoutError,ValueError) as exc: die('Could not read latest public GitHub Release: '+str(exc))
+    try:
+        releases=json.loads(get('https://api.github.com/repos/'+repo+'/releases?per_page=100',1024*1024))
+        candidates=[r for r in releases if not r.get('draft') and parsed_version(r.get('tag_name',''))]
+        if not candidates: die('No published GitHub Releases found (including beta releases).')
+        release=max(candidates,key=lambda r:parsed_version(r['tag_name']))
+    except (urllib.error.URLError,TimeoutError,ValueError,TypeError) as exc: die('Could not read published GitHub Releases: '+str(exc))
     tag=release.get('tag_name','')
     newest=parsed_version(tag)
     installed=parsed_version(current_version())
