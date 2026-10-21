@@ -1,44 +1,51 @@
-# Brack TDX
+# Append TDX
 
-**Brack Terminal Desktop (Brack TDX)** is an experimental terminal-first Linux desktop session for Debian 13, built with Bash, Kitty and Openbox. You can run normal shell commands while launching and managing graphical applications.
+**Append TDX**, by **Append Hub**, is an experimental **X11 terminal-first Linux desktop session** for Debian 13. It uses Bash, Kitty and Openbox. It is a separate desktop session, not a new Linux kernel or distribution.
 
-## Commands
+This project was previously called **Brack TDX**. Existing helper commands with `brack-` prefixes remain available for compatibility while the project transitions.
 
-- `ls -rr` — list graphical applications available to launch.
-- `-rr Brack Code Studio` — launch an app without blocking the Bash prompt.
-- `u -rr APP NAME` — simulate, preview and confirm application removal.
-- `brack-tabs` / `brack-switch 1` — list and focus graphical windows.
-- `brack-color list` / `brack-color royal` — choose a terminal theme.
-- `brack-update --check` — check for a newer GitHub Release.
-- `exit` — ends the Brack terminal session.
+## Append Capture (new)
 
-Minimized windows are displayed in a temporary icon bar. Other desktops remain installed and selectable from SDDM.
+Inside **Append TDX**:
 
-## Install from the source repository (Debian 13)
+| Shortcut | Action |
+| --- | --- |
+| `Prt Sc` | Open Flameshot screenshot selection/annotation interface |
+| `Shift + Prt Sc` | Open area selection/annotation |
+| `Alt + Prt Sc` | Save a screenshot of the focused window |
+| `Ctrl + Prt Sc` | Save a screenshot of the entire desktop |
 
-Review the files, especially `install.sh`, before running:
+Screenshot editor supports drawing/annotation, copying and saving via Flameshot. Captures are saved to **Pictures/Screenshots** by default, or a directory specified by `APPEND_CAPTURE_DIR`. `append-capture gui`, `append-capture full`, and `append-capture window` also work in the terminal. The full and window shortcuts save PNG files without displaying an editor. Window capture uses `scrot -u` on X11.
+
+The shortcuts are defined only for the **Append TDX Openbox session** through a generated private Openbox configuration. They do not modify global Budgie shortcuts. The generated configuration copies the system Openbox defaults on each TDX session start; any old `~/.config/openbox/rc.xml` customizations are not imported.
+
+## Install on Debian 13
+
+Review `install.sh` before execution:
 
 ```bash
 sudo apt update
-sudo apt install --no-install-recommends git kitty openbox libgtk-3-bin python3 python3-gi gir1.2-gtk-3.0 wmctrl x11-utils unzip
+sudo apt install --no-install-recommends git kitty openbox libgtk-3-bin python3 python3-gi gir1.2-gtk-3.0 wmctrl x11-utils xdg-user-dirs flameshot scrot
 git clone https://github.com/HaidarAli147/brack-tdx.git
 cd brack-tdx
+git switch feature/append-tdx-capture
 bash install.sh
 ```
 
-Then log out, select **Brack Terminal** from SDDM and sign in. You can return to Budgie or another existing session.
+Log out, then select **Append TDX** in your SDDM session chooser. Your previous desktop remains installed.
 
-## Configure update checks
+If you have already cloned the repository, run `git fetch origin` and `git switch feature/append-tdx-capture` instead of cloning again.
 
-```bash
-brack-update --repo HaidarAli147/brack-tdx
-brack-update --check
-```
+## Desktop commands
 
-**Important:** Uploading source code to GitHub is not the same as publishing a release. The updater requires an actual GitHub Release with a tag such as `v0.7.0`, an asset named `brack-terminal-desktop-v0.7.0.zip`, and `brack-terminal-desktop-v0.7.0.zip.sha256`. Until such a release exists, update checks will report no release. A SHA-256 checksum helps detect corruption but does not independently authenticate the publisher.
+- `ls -rr` lists graphical apps.
+- `-rr APP NAME` launches an app without blocking Bash.
+- `u -rr APP NAME` previews and confirms app removal.
+- `brack-tabs`, `brack-switch`, `brack-color`, and `brack-update` are legacy commands retained for compatibility.
+- `exit` ends the terminal session.
 
-## Status and cautions
+## Implementation notes
 
-**v0.6 beta.** This is a custom desktop session, not a standalone Linux distribution. It has not yet been tested across different machines or security-audited. Normal GUI applications still appear in separate managed windows. Keep your previous desktop as a fallback. Review the package removals proposed by `u -rr` before confirming.
+The current compositor is **Openbox on X11**, not Wayland. An X11 screenshot helper cannot simply be reused in Wayland without compositor-specific protocols or desktop portals. Screenshot capture may reveal private information, so share only screenshots you intend to share.
 
-License selection and third-party notices should be reviewed before a stable release.
+**Status: experimental beta.** The code has not yet been graphically tested on the target Debian installation. Test the new session with your existing desktop available as a fallback. No changes are made to your default desktop. GitHub repository renaming is separate from in-app branding.

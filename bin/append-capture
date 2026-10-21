@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Append Capture: X11-only screenshot utility for Append TDX.
+set -euo pipefail
+if [[ "${XDG_SESSION_TYPE:-x11}" == "wayland" ]]; then
+  echo "Append Capture currently supports X11. Wayland support needs portal integration." >&2
+  exit 1
+fi
+if [[ -z "${DISPLAY:-}" ]]; then
+  echo "Append Capture requires an X11 display." >&2; exit 1
+fi
+picture_dir="${XDG_PICTURES_DIR:-}"
+if command -v xdg-user-dir >/dev/null 2>&1; then
+  picture_dir="$(xdg-user-dir PICTURES 2>/dev/null || true)"
+fi
+picture_dir="${picture_dir:-$HOME/Pictures}"
+dest="${APPEND_CAPTURE_DIR:-$picture_dir/Screenshots}"
+mkdir -p "$dest"
+filename="$dest/Screenshot-$(date +%Y-%m-%d_%H-%M-%S)-$$.png"
+case "${1:-gui}" in
+  gui|area)
+    if ! command -v flameshot >/dev/null 2>&1; then
+      echo "Install flameshot to use the screenshot selection/editor: sudo apt install flameshot" >&2
+      exit 1
+    fi
+    # Flameshot provides annotation, clipboard copy and save UI.
+    exec flameshot gui --path "$dest"
+    ;;
+  full)
+    command -v scrot >/dev/null 2>&1 || { echo "Install scrot: sudo apt install scrot" >&2; exit 1; }
+    scrot "$filename"
+    printf 'Saved %s\n' "$filename"
+    ;;
+  window)
+    command -v scrot >/dev/null 2>&1 || { echo "Install scrot: sudo apt install scrot" >&2; exit 1; }
+    scrot -u "$filename"
+    printf 'Saved %s\n' "$filename"
+    ;;
+  *)
+    echo "Usage: append-capture [gui|area|full|window]" >&2; exit 2
+    ;;
+esac

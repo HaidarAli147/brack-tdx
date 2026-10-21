@@ -1,0 +1,34 @@
+# Append TDX terminal session.
+if [ -f "$HOME/.bashrc" ]; then . "$HOME/.bashrc"; fi
+export PATH="$HOME/.local/bin:$PATH"
+unalias ls 2>/dev/null || true
+ls() {
+  if [ "$#" -eq 1 ] && [ "$1" = '-rr' ]; then
+    "$HOME/.local/bin/-rr" --list
+  else
+    command ls "$@"
+  fi
+}
+append-help() {
+  printf '\n\033[1;35mAPPEND TDX\033[0m\n'
+  printf '  ls -rr                  List installed GUI apps\n'
+  printf '  -rr APP NAME            Launch GUI app\n'
+  printf '  u -rr APP NAME          Preview and confirm app uninstall\n'
+  printf '  append-capture gui      Capture/select/annotate screenshot\n'
+  printf '  append-capture full     Save entire screen\n'
+  printf '  append-capture window   Save focused window\n'
+  printf '  PrtSc                   Open Append Capture\n'
+  printf '  Shift+PrtSc             Select screenshot area\n'
+  printf '  Alt+PrtSc               Capture active window\n'
+  printf '  Ctrl+PrtSc              Capture full screen\n'
+  printf '  brack-tabs              List open application windows (legacy helper)\n'
+  printf '  brack-color royal       Choose terminal color (legacy helper)\n'
+  printf '  exit                    End Append TDX session\n\n'
+}
+brack-tabs() { "$HOME/.local/bin/brack-windows" list; }
+brack-switch() { "$HOME/.local/bin/brack-windows" switch "$@"; }
+append_prompt() { "$HOME/.local/bin/brack-windows" compact 2>/dev/null || true; }
+PROMPT_COMMAND="append_prompt${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+export PS1='\[\e[1;35m\]append\[\e[0m\]:\[\e[1;37m\]\w\[\e[0m\] $ '
+clear
+append-help

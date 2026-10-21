@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export XDG_CURRENT_DESKTOP=APPEND
+export XDG_SESSION_DESKTOP=append-tdx
+export PATH="$HOME/.local/bin:$PATH"
+"$HOME/.local/bin/append-openbox-config"
+openbox --sm-disable --config-file "$HOME/.config/append-tdx/openbox.xml" &
+wm_pid=$!
+cleanup() { kill "$wm_pid" ${bar_pid:-} 2>/dev/null || true; }
+trap cleanup EXIT
+sleep 1
+"$HOME/.local/bin/brack-minibar" &
+bar_pid=$!
+kitty --title 'Append TDX' --override hide_window_decorations=yes \
+  --config "$HOME/.config/append-tdx/kitty.conf" \
+  --start-as maximized -- bash --rcfile "$HOME/.config/append-tdx/bashrc" -i &
+kitty_pid=$!
+for n in $(seq 1 40); do
+  if wmctrl -r 'Append TDX' -b add,below,skip_taskbar,skip_pager 2>/dev/null; then break; fi
+  sleep 0.25
+done
+wait "$kitty_pid" || true
