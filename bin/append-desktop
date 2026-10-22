@@ -72,6 +72,7 @@ class AppendDesktop(Gtk.Window):
             -1,
             None,
             child_ready,
+            None,
         )
 
     def focus_terminal(self):
