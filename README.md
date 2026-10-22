@@ -19,6 +19,18 @@ Screenshot editor supports drawing/annotation, copying and saving via Flameshot.
 
 The shortcuts are defined only for the **Append TDX Openbox session** through a generated private Openbox configuration. They do not modify global Budgie shortcuts. The generated configuration copies the system Openbox defaults on each TDX session start; any old `~/.config/openbox/rc.xml` customizations are not imported.
 
+## Updating TDX with one command
+
+After installing this updater once, open the terminal inside Append TDX and type:
+
+```bash
+update tdx
+```
+
+Append TDX checks the repository's **main** branch, downloads its newest source, shows the target commit, asks permission, and runs the installer only after confirmation. A logout/login loads the desktop updates. An internet connection and Git are required. Your previous Budgie session remains available.
+
+This is a **source-based Git updater**, not the old GitHub Release ZIP updater. It trusts the Append TDX repository, so review changes before accepting major updates. For testing a different development branch, an advanced user may set `APPEND_TDX_UPDATE_BRANCH` explicitly. The initial installation is still required once to add the update command.
+
 ## Install on Debian 13
 
 Review `install.sh` before execution:
@@ -28,7 +40,7 @@ sudo apt update
 sudo apt install --no-install-recommends git kitty openbox libgtk-3-bin python3 python3-gi gir1.2-gtk-3.0 wmctrl x11-utils xdg-user-dirs flameshot scrot network-manager wireplumber tint2 brightnessctl bluez
 git clone https://github.com/HaidarAli147/brack-tdx.git
 cd brack-tdx
-git switch feature/append-tdx-system-controls
+git switch feature/append-tdx-one-command-update
 bash install.sh
 ```
 
