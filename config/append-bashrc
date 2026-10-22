@@ -21,13 +21,17 @@ append-help() {
   printf '  Shift+PrtSc             Select screenshot area\n'
   printf '  Alt+PrtSc               Capture active window\n'
   printf '  Ctrl+PrtSc              Capture full screen\n'
-  printf '  brack-tabs              List open application windows (legacy helper)\n'
-  printf '  brack-color royal       Choose terminal color (legacy helper)\n'
+  printf '  append-tabs              List open application windows (legacy helper)\n'
+  printf '  /settings               Open text-based system settings\n'
+  printf '  /wifi                   Scan and connect to Wi-Fi\n'
+  printf '  /taskbar add            Enable optional taskbar\n'
+  printf '  /taskbar remove         Disable optional taskbar\n'
+  printf '  update tdx              Install newest Append TDX version\n'
   printf '  exit                    End Append TDX session\n\n'
 }
-brack-tabs() { "$HOME/.local/bin/brack-windows" list; }
-brack-switch() { "$HOME/.local/bin/brack-windows" switch "$@"; }
-append_prompt() { "$HOME/.local/bin/brack-windows" compact 2>/dev/null || true; }
+append-tabs() { "$HOME/.local/bin/append-windows" list; }
+append-switch() { "$HOME/.local/bin/append-windows" switch "$@"; }
+append_prompt() { "$HOME/.local/bin/append-windows" compact 2>/dev/null || true; }
 PROMPT_COMMAND="append_prompt${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
 export PS1='\[\e[1;35m\]append\[\e[0m\]:\[\e[1;37m\]\w\[\e[0m\] $ '
 clear
