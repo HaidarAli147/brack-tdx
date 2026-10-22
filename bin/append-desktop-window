@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Turn the dedicated Kitty session window into an EWMH desktop-layer surface.
+set -euo pipefail
+wid="${1:?window ID required}"
+case "$wid" in *[!0-9]*|'') exit 2;; esac
+# The desktop window sits below normal applications and is skipped by task switchers.
+xdotool windowmove "$wid" 0 0
+xdotool windowsize "$wid" 100% 100%
+xprop -id "$wid" -f _NET_WM_WINDOW_TYPE 32a -set _NET_WM_WINDOW_TYPE _NET_WM_WINDOW_TYPE_DESKTOP
+wmctrl -ir "$wid" -b add,below,skip_taskbar,skip_pager 2>/dev/null || true

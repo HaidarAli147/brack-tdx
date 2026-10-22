@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""Append TDX terminal desktop surface. GTK3/VTE, not an external Kitty window."""
+import os
+from pathlib import Path
+import sys
+import gi
+gi.require_version("Gtk", "3.0")
+gi.require_version("Gdk", "3.0")
+gi.require_version("Vte", "2.91")
+from gi.repository import Gdk, GLib, Gtk, Vte
+
+HOME = Path.home()
+RC = HOME / ".config/append-tdx/bashrc"
+
+class AppendDesktop(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Append TDX Desktop")
+        self.set_name("append-desktop")
+        self.set_decorated(False)
+        self.set_skip_taskbar_hint(True)
+        self.set_skip_pager_hint(True)
+        self.set_type_hint(Gdk.WindowTypeHint.DESKTOP)
+        self.set_keep_below(True)
+        self.set_accept_focus(True)
+        self.set_default_size(1200, 720)
+        self.connect("destroy", Gtk.main_quit)
+
+        css = Gtk.CssProvider()
+        css.load_from_data(b"""
+        #append-desktop { background: #210D34; }
+        #append-desktop box { background: #210D34; }
+        #append-header { color: #DDBBFF; font: 12px Sans; padding: 10px 20px; }
+        """)
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+        layout = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.add(layout)
+        header = Gtk.Label(label="APPEND TDX    /settings   /wifi   /taskbar add   update tdx")
+        header.set_name("append-header")
+        header.set_halign(Gtk.Align.START)
+        layout.pack_start(header, False, False, 0)
+
+        terminal = Vte.Terminal()
+        self.terminal = terminal
+        terminal.set_scrollback_lines(10000)
+        bg = Gdk.RGBA()
+        bg.parse("#210D34")
+        fg = Gdk.RGBA()
+        fg.parse("#F3E8FF")
+        terminal.set_color_background(bg)
+        terminal.set_color_foreground(fg)
+        terminal.set_cursor_blink_mode(Vte.CursorBlinkMode.ON)
+        layout.pack_start(terminal, True, True, 0)
+        terminal.connect("child-exited", lambda *_: Gtk.main_quit())
+
+        self.show_all()
+        self.fullscreen()
+        terminal.grab_focus()
+        GLib.timeout_add(300, self.focus_terminal)
+
+        def child_ready(term, pid, error, *rest):
+            if error:
+                print("Append TDX terminal failed:", error, file=sys.stderr)
+                Gtk.main_quit()
+        terminal.spawn_async(
+            Vte.PtyFlags.DEFAULT,
+            str(HOME),
+            ["/bin/bash", "--rcfile", str(RC), "-i"],
+            None,
+            GLib.SpawnFlags.DEFAULT,
+            None,
+            -1,
+            None,
+            child_ready,
+        )
+
+    def focus_terminal(self):
+        self.terminal.grab_focus()
+        window = self.get_window()
+        if window:
+            window.focus(Gdk.CURRENT_TIME)
+        return False
+
+if __name__ == "__main__":
+    AppendDesktop()
+    Gtk.main()
