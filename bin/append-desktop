@@ -63,11 +63,9 @@ class AppendDesktop(Gtk.Window):
             None,
             GLib.SpawnFlags.DEFAULT,
             None,
-            None,
             -1,
             None,
             child_ready,
-            None,
         )
 
 if __name__ == "__main__":
