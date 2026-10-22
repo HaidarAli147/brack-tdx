@@ -1,0 +1,23 @@
+name: Append TDX checks
+on:
+  push:
+    branches: [main, feature/tdx-desktop-core-taskbar-input]
+  pull_request:
+    branches: [main]
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python compile checks
+        run: python3 -m compileall -q bin
+      - name: Bash syntax checks
+        run: |
+          bash -n install.sh
+          bash -n bin/append-tdx-session bin/append-capture bin/append-tdx-update bin/append-desktop-window
+          bash -n config/append-bashrc
+      - name: Shell executable permissions
+        run: |
+          test -f bin/append-desktop
+          test -f bin/append-taskbar-config
+          test -f bin/append-openbox-config
