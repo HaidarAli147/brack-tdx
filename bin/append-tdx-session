@@ -16,16 +16,6 @@ if [ ! -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
   "$HOME/.local/bin/brack-minibar" &
   bar_pid=$!
 fi
-kitty --title 'Append TDX Desktop' --override hide_window_decorations=yes \
-  --config "$HOME/.config/append-tdx/kitty.conf" \
-  --start-as maximized -- bash --rcfile "$HOME/.config/append-tdx/bashrc" -i &
-kitty_pid=$!
-for n in $(seq 1 60); do
-  wid="$(xdotool search --onlyvisible --name '^Append TDX Desktop$' 2>/dev/null | head -n 1 || true)"
-  if [ -n "$wid" ]; then
-    "$HOME/.local/bin/append-desktop-window" "$wid"
-    break
-  fi
-  sleep 0.25
-done
-wait "$kitty_pid" || true
+"$HOME/.local/bin/append-desktop" &
+desktop_pid=$!
+wait "$desktop_pid" || true
