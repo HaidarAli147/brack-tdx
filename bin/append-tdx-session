@@ -9,6 +9,9 @@ wm_pid=$!
 cleanup() { kill "$wm_pid" ${bar_pid:-} 2>/dev/null || true; }
 trap cleanup EXIT
 sleep 1
+if [ -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
+  "$HOME/.local/bin/append-control" taskbar add || true
+fi
 "$HOME/.local/bin/brack-minibar" &
 bar_pid=$!
 kitty --title 'Append TDX' --override hide_window_decorations=yes \
