@@ -23,7 +23,7 @@ case "${1:-gui}" in
       exit 1
     fi
     # Flameshot provides annotation, clipboard copy and save UI.
-    exec flameshot gui --path "$dest"
+    # Some minimal Openbox sessions do not have a running Flameshot DBus service.\n    if ! pgrep -u "$(id -u)" -x flameshot >/dev/null 2>&1; then\n      flameshot >/dev/null 2>&1 &\n      sleep 1\n    fi\n    exec flameshot gui --path "$dest"
     ;;
   full)
     command -v scrot >/dev/null 2>&1 || { echo "Install scrot: sudo apt install scrot" >&2; exit 1; }
