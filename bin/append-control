@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+"""Append TDX terminal-based settings and system controls (X11/Debian)."""
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+
+CONFIG = Path.home() / ".config" / "append-tdx"
+CONFIG.mkdir(parents=True, exist_ok=True)
+PID = CONFIG / "taskbar.pid"
+ENABLED = CONFIG / "taskbar.enabled"
+
+def run(*args, capture=False):
+    try:
+        return subprocess.run(args, check=False, text=True, capture_output=capture)
+    except FileNotFoundError:
+        print(f"Missing program: {args[0]}. Install the appropriate package.")
+        return None
+
+def wifi():
+    if not shutil.which("nmcli"):
+        print("Wi-Fi requires NetworkManager (nmcli).")
+        return
+    while True:
+        print("\nWi-Fi: 1) status  2) list networks  3) connect  4) disconnect  5) on  6) off  0) back")
+        choice = input("wifi> ").strip().lower()
+        if choice in ("0", "q", "back"): return
+        if choice == "1": run("nmcli", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status")
+        elif choice == "2": run("nmcli", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "device", "wifi", "list", "--rescan", "yes")
+        elif choice == "3":
+            ssid = input("Network name (SSID): ").strip()
+            if not ssid: continue
+            secured = input("Password-protected? [Y/n]: ").strip().lower() != "n"
+            command = ["nmcli", "device", "wifi", "connect", ssid]
+            if secured:
+                # Let nmcli read credentials interactively so passwords never appear in argv or logs.
+                command = ["nmcli", "--ask", "device", "wifi", "connect", ssid]
+                print("Enter the password in NetworkManager's prompt if requested.")
+            run(*command)
+        elif choice == "4":
+            device = input("Wi-Fi interface (e.g. wlan0): ").strip()
+            if re.fullmatch(r"[a-zA-Z0-9_.:-]{1,40}", device):
+                run("nmcli", "device", "disconnect", device)
+        elif choice == "5": run("nmcli", "radio", "wifi", "on")
+        elif choice == "6":
+            if input("Disable Wi-Fi? [y/N] ").lower() == "y":
+                run("nmcli", "radio", "wifi", "off")
+        else: print("Choose 0 through 6.")
+
+def volume(arg=None):
+    if not shutil.which("wpctl"):
+        print("Volume control requires PipeWire's wpctl (wireplumber).")
+        return
+    if arg in (None, "", "status"):
+        run("wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@")
+    elif arg in ("up", "down"):
+        run("wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%+" if arg == "up" else "5%-")
+    elif arg == "mute":
+        run("wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle")
+    elif arg.isdigit() and 0 <= int(arg) <= 100:
+        run("wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{int(arg)}%")
+    else: print("Use /volume [status|up|down|mute|0-100].")
+
+def taskbar(action="status"):
+    if action == "add":
+        if not shutil.which("tint2"):
+            print("Install tint2 to use the optional taskbar: sudo apt install tint2")
+            return
+        if taskbar_running():
+            print("Taskbar already running.")
+        else:
+            with open(os.devnull, "wb") as devnull:
+                proc = subprocess.Popen(["tint2"], stdin=devnull, stdout=devnull, stderr=devnull, start_new_session=True)
+            PID.write_text(str(proc.pid))
+            print("Taskbar enabled.")
+        ENABLED.touch()
+    elif action == "remove":
+        ENABLED.unlink(missing_ok=True)
+        if taskbar_running():
+            import signal
+            try: os.kill(int(PID.read_text()), signal.SIGTERM)
+            except (ProcessLookupError, ValueError, PermissionError): pass
+        PID.unlink(missing_ok=True)
+        print("Taskbar disabled.")
+    elif action == "status":
+        print("Taskbar: " + ("enabled" if ENABLED.exists() else "disabled"))
+    else: print("Use /taskbar [add|remove|status].")
+
+def taskbar_running():
+    try:
+        pid = int(PID.read_text())
+        cmd = Path(f"/proc/{pid}/comm").read_text().strip()
+        return cmd == "tint2"
+    except (OSError, ValueError): return False
+
+def brightness(arg=None):
+    if shutil.which("brightnessctl"):
+        if not arg or arg == "status": run("brightnessctl", "get")
+        elif arg in ("up", "down"): run("brightnessctl", "set", "5%+" if arg == "up" else "5%-")
+        elif arg.isdigit() and 5 <= int(arg) <= 100: run("brightnessctl", "set", f"{int(arg)}%")
+        else: print("Use /brightness [status|up|down|5-100].")
+    else:
+        print("Brightness control requires brightnessctl and device permissions.")
+
+def bluetooth():
+    if shutil.which("bluetoothctl"):
+        print("Bluetooth manager. Use 'scan on', 'devices', 'pair MAC', 'connect MAC', 'power on/off', 'quit'.")
+        run("bluetoothctl")
+    else: print("Bluetooth support requires bluetoothctl (bluez).")
+
+def settings():
+    while True:
+        print("\nAPPEND TDX SETTINGS\n1) Wi-Fi\n2) Volume\n3) Screenshot\n4) Taskbar\n5) Display information\n6) Battery status\n7) Brightness\n8) Bluetooth\n0) Exit")
+        choice = input("settings> ").strip()
+        if choice == "0": return
+        if choice == "1": wifi()
+        elif choice == "2":
+            print("Volume: up / down / mute / 0-100")
+            volume(input("volume> ").strip())
+        elif choice == "3":
+            print("PrtSc opens Append Capture. You can also run append-capture gui.")
+            if input("Open capture now? [y/N] ").strip().lower() == "y":
+                run("append-capture", "gui")
+        elif choice == "4":
+            taskbar(input("taskbar (add/remove/status)> ").strip())
+        elif choice == "5": run("xrandr", "--query")
+        elif choice == "6":
+            battery = list(Path("/sys/class/power_supply").glob("BAT*/capacity"))
+            if battery:
+                for item in battery:
+                    print(f"{item.parent.name}: {item.read_text().strip()}%")
+            else: print("No battery detected.")
+        elif choice == "7": brightness(input("brightness (up/down/status/5-100)> ").strip())
+        elif choice == "8": bluetooth()
+        else: print("Unknown choice.")
+
+def main():
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "settings"
+    args = sys.argv[2:]
+    if cmd == "settings": settings()
+    elif cmd == "wifi": wifi()
+    elif cmd == "volume": volume(args[0] if args else None)
+    elif cmd == "taskbar": taskbar(args[0] if args else "status")
+    elif cmd == "brightness": brightness(args[0] if args else None)
+    elif cmd == "bluetooth": bluetooth()
+    else: print("Usage: append-control settings|wifi|volume|taskbar"); return 2
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

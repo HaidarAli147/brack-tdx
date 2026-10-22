@@ -32,3 +32,22 @@ PROMPT_COMMAND="append_prompt${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
 export PS1='\[\e[1;35m\]append\[\e[0m\]:\[\e[1;37m\]\w\[\e[0m\] $ '
 clear
 append-help
+
+# Terminal-first Append TDX commands; bash functions make /settings and /wifi work.
+function /settings() { "$HOME/.local/bin/append-control" settings "$@"; }
+function /wifi() { "$HOME/.local/bin/append-control" wifi "$@"; }
+function /volume() { "$HOME/.local/bin/append-control" volume "$@"; }
+function /taskbar() { "$HOME/.local/bin/append-control" taskbar "$@"; }
+function /brightness() { "$HOME/.local/bin/append-control" brightness "$@"; }
+function /bluetooth() { "$HOME/.local/bin/append-control" bluetooth "$@"; }
+function /screenshot() { "$HOME/.local/bin/append-capture" "${1:-gui}"; }
+function /help() {
+  printf '\nAppend TDX commands:\n'
+  printf ' /settings    interactive terminal settings\n'
+  printf ' /wifi        scan and connect with NetworkManager\n'
+  printf ' /volume      status, up, down, mute or 0-100\n'
+  printf ' /brightness  status, up, down or 5-100\n'
+  printf ' /bluetooth   interactive Bluetooth manager\n'
+  printf ' /taskbar add|remove|status\n'
+  printf ' /screenshot  gui|full|window\n'
+}
