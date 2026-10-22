@@ -83,3 +83,26 @@ Commands beginning with `/` are **Bash functions** loaded into the Append TDX in
 The current compositor is **Openbox on X11**, not Wayland. An X11 screenshot helper cannot simply be reused in Wayland without compositor-specific protocols or desktop portals. Screenshot capture may reveal private information, so share only screenshots you intend to share.
 
 **Status: experimental development branch.** The code has not yet been graphically tested on the target Debian installation. Test the new session with your existing desktop available as a fallback. No changes are made to your default desktop. GitHub repository renaming is separate from in-app branding.
+
+## Laptop screenshot and volume key bindings (fix branch)
+
+Append TDX's private Openbox session now registers `Print`, `XF86AudioRaiseVolume`, `XF86AudioLowerVolume`, `XF86AudioMute`, `XF86AudioMicMute`, `XF86MonBrightnessUp`, and `XF86MonBrightnessDown` keys. `append-media` handles the hardware volume buttons using `wpctl` or `pactl`; brightness uses `brightnessctl`. The screenshots use `append-capture`, which now starts Flameshot's service when required.
+
+**Install this branch to test**:
+```bash
+cd ~/Downloads
+git clone -b fix/append-tdx-media-and-capture-keys https://github.com/HaidarAli147/brack-tdx.git append-tdx-key-fix
+cd append-tdx-key-fix
+bash install.sh
+```
+Then log out and log in to **Append TDX** again (not Budgie).
+
+**Diagnose if a key still fails inside TDX**:
+```bash
+append-media volume-up
+append-capture gui
+xev -event keyboard
+```
+Focus the `xev` window, press the keyboard's volume or Print key, and check its `keysym` name. Laptop Fn settings can change which key event Openbox receives. If `append-media` fails, inspect `wpctl status` and `systemctl --user status pipewire wireplumber`. If `append-capture gui` fails, run `flameshot gui` to see the error. This update changes **TDX shortcuts only**, not Budgie or system-wide keyboard mapping.
+
+These changes are committed but still require testing on the physical Debian machine.
