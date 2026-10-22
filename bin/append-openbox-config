@@ -24,6 +24,12 @@ shortcuts = {
     "S-Print": "append-capture area",
     "A-Print": "append-capture window",
     "C-Print": "append-capture full",
+    "XF86AudioRaiseVolume": "append-media volume-up",
+    "XF86AudioLowerVolume": "append-media volume-down",
+    "XF86AudioMute": "append-media volume-mute",
+    "XF86AudioMicMute": "append-media mic-mute",
+    "XF86MonBrightnessUp": "append-media brightness-up",
+    "XF86MonBrightnessDown": "append-media brightness-down",
 }
 for key, command in shortcuts.items():
     for binding in list(keyboard.findall(tag("keybind"))):

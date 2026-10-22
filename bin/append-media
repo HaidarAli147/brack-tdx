@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Append TDX hardware key helper. Run only in the user's desktop session."""
+import shutil
+import subprocess
+import sys
+
+def call(argv):
+    result = subprocess.run(argv, check=False)
+    return result.returncode
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: append-media volume-up|volume-down|volume-mute|mic-mute|brightness-up|brightness-down")
+        return 2
+    action = sys.argv[1]
+    volume = {
+        "volume-up": ("@DEFAULT_AUDIO_SINK@", "5%+"),
+        "volume-down": ("@DEFAULT_AUDIO_SINK@", "5%-"),
+    }
+    if action in volume:
+        node, amount = volume[action]
+        if shutil.which("wpctl"):
+            return call(["wpctl", "set-volume", "-l", "1.0", node, amount])
+        if shutil.which("pactl"):
+            return call(["pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%" if action == "volume-up" else "-5%"])
+    elif action == "volume-mute":
+        if shutil.which("wpctl"):
+            return call(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+        if shutil.which("pactl"):
+            return call(["pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle"])
+    elif action == "mic-mute":
+        if shutil.which("wpctl"):
+            return call(["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"])
+        if shutil.which("pactl"):
+            return call(["pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle"])
+    elif action in ("brightness-up", "brightness-down"):
+        if shutil.which("brightnessctl"):
+            return call(["brightnessctl", "set", "5%+" if action == "brightness-up" else "5%-"])
+    else:
+        print("Unknown key action:", action, file=sys.stderr)
+        return 2
+    print("Required audio or brightness service is unavailable.", file=sys.stderr)
+    return 1
+
+if __name__ == "__main__":
+    sys.exit(main())
