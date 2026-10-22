@@ -51,3 +51,15 @@ function /help() {
   printf ' /taskbar add|remove|status\n'
   printf ' /screenshot  gui|full|window\n'
 }
+
+# Update Append TDX by simply typing: update tdx
+update() {
+  if [ "$#" -eq 1 ] && [ "$1" = "tdx" ]; then
+    "$HOME/.local/bin/append-tdx-update"
+  else
+    printf 'Usage: update tdx\n' >&2
+    return 2
+  fi
+}
+
+printf 'Tip: type update tdx to check for and install TDX updates.\n'
