@@ -35,7 +35,8 @@ def applications():
                 name = section.get('Name', path.stem).strip()
                 if not name:
                     continue
-                apps.append({'name': name, 'id': desktop_id})
+                categories = [c.strip() for c in section.get('Categories', '').split(';') if c.strip()]
+                apps.append({'name': name, 'id': desktop_id, 'categories': categories})
             except (OSError, ValueError, configparser.Error, KeyError):
                 pass
     counts = Counter(a['name'].casefold() for a in apps)
@@ -47,13 +48,22 @@ def applications():
 def main():
     apps = applications()
     args = sys.argv[1:]
-    if args == ['--list']:
+    if args and args[0] in ('--list', '--categories'):
+        if args[0] == '--categories':
+            categories = sorted({c for app in apps for c in app['categories']}, key=str.casefold)
+            print('Categories: ' + ', '.join(categories))
+            return 0
+        requested = ' '.join(args[1:]).strip().casefold()
+        if requested:
+            aliases = {'games': 'game', 'graphics': 'graphics', 'internet': 'network', 'web': 'network', 'office': 'office', 'development': 'development', 'programming': 'development', 'education': 'education', 'music': 'audio', 'video': 'video', 'utilities': 'utility', 'settings': 'settings', 'system': 'system'}
+            requested = aliases.get(requested, requested)
+            apps = [app for app in apps if any(requested == c.casefold() or requested in c.casefold() for c in app['categories'])]
         for app in apps:
             print(app['label'])
-        print(f'\n{len(apps)} applications available via -rr')
+        print(f'\n{len(apps)} applications available via -rr' + (f' in category {requested}' if requested else ''))
         return 0
     if not args or args == ['--help']:
-        print('Usage: ls -rr  |  -rr APPLICATION NAME')
+        print('Usage: ls -rr [CATEGORY] | ls -rr categories | -rr APPLICATION NAME')
         return 0
     query = ' '.join(args).strip().casefold()
     matches = [a for a in apps if a['label'].casefold() == query or a['id'].casefold() == query]
