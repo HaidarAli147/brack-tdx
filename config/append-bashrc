@@ -17,6 +17,8 @@ ls() {
 append-help() {
   printf '\n\033[1;35mAPPEND TDX\033[0m\n'
   printf '  ls -rr [CATEGORY]       List GUI apps by category\n'
+  printf '  ls -rr categories       Show app category names\n'
+  printf '  /background set FILE    Set wallpaper image (relogin to apply)\n'
   printf '  -rr APP NAME            Launch GUI app\n'
   printf '  u -rr APP NAME          Preview and confirm app uninstall\n'
   printf '  append-capture gui      Capture/select/annotate screenshot\n'
