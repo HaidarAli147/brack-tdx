@@ -6,11 +6,11 @@ for prog in git openbox gtk-launch python3 wmctrl xprop xdotool flameshot scrot 
 done
 python3 -c "import gi; gi.require_version('Gtk', '3.0'); gi.require_version('Vte', '2.91'); from gi.repository import Gtk, Vte" || { echo "Missing python3-gi / GTK3 bindings." >&2; exit 1; }
 mkdir -p "$HOME/.local/bin" "$HOME/.config/append-tdx"
-for name in -rr u append-windows append-minibar; do
+for name in -rr u append-windows; do
   install -m 755 "bin/$name" "$HOME/.local/bin/$name"
 done
-# Clean up only obsolete helper executables installed by previous TDX releases.
-for old in brack-windows brack-minibar brack-color brack-update; do
+# Clean up obsolete popup and older helper executables installed by TDX.
+for old in append-minibar brack-windows brack-minibar brack-color brack-update; do
   if [ -f "$HOME/.local/bin/$old" ]; then
     mv -n "$HOME/.local/bin/$old" "$HOME/.local/bin/$old.tdx-backup"
   fi
