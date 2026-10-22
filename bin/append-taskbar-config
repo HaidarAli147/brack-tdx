@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""Generate a dedicated Append TDX tint2 panel theme; does not affect other desktops."""
+from pathlib import Path
+out = Path.home() / ".config/append-tdx/tint2rc"
+out.parent.mkdir(parents=True, exist_ok=True)
+out.write_text("""# Append TDX taskbar
+rounded = 10
+border_width = 1
+background_color = #210D34 96
+border_color = #9555D4 90
+background_id = 1
+
+rounded = 7
+border_width = 0
+background_color = #7434A8 90
+background_id = 2
+
+panel_items = TSC
+panel_monitor = all
+panel_position = bottom center horizontal
+panel_size = 96% 38
+panel_margin = 0 9
+panel_padding = 12 4 10
+panel_background_id = 1
+panel_dock = 1
+panel_layer = top
+panel_shrink = 0
+wm_menu = 1
+
+taskbar_mode = multi_desktop
+taskbar_padding = 5 4 5
+taskbar_background_id = 0
+taskbar_active_background_id = 2
+taskbar_name = 0
+taskbar_hide_if_empty = 0
+
+task_icon = 1
+task_text = 1
+task_maximum_size = 180 32
+task_centered = 0
+task_padding = 8 2 8
+task_background_id = 0
+task_active_background_id = 2
+task_font = Sans 10
+task_font_color = #F5E9FF 95
+task_active_font_color = #FFFFFF 100
+task_tooltip = 1
+
+systray_padding = 5 4 5
+systray_background_id = 0
+systray_icon_size = 20
+
+time1_format = %H:%M
+time1_font = Sans Bold 11
+clock_font_color = #F5E9FF 100
+clock_padding = 12 4
+clock_background_id = 0
+tooltip_padding = 4 4
+tooltip_background_color = #210D34 95
+tooltip_font_color = #F5E9FF 100
+""", encoding="utf-8")
+print(out)
