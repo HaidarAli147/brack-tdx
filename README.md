@@ -116,3 +116,15 @@ The screenshot and XF86 volume/mute/brightness keys remain registered inside the
 `/taskbar add` enables a dedicated royal-purple tint2 panel with a clock, running application buttons and a tray; `/taskbar remove` switches back to the compact minimized-windows display on the following login. The new panel does not replace the terminal-first workflow.
 
 Install this development branch by checking out `feature/tdx-desktop-core-taskbar-input`, installing the VTE bindings package `gir1.2-vte-2.91`, and running `bash install.sh`. Once changes reach `main`, the usual `update tdx` command can deliver them.
+
+## Black screen / login loop recovery
+
+If the integrated GTK/VTE desktop crashes while logging in, the session writes errors to `~/.local/state/append-tdx/session.log` and attempts to open a fallback terminal. The previously installed Budgie or other desktop is not modified.
+
+From Budgie, diagnose the session with:
+```bash
+tail -n 100 ~/.local/state/append-tdx/session.log
+python3 -c "import gi; gi.require_version('Vte', '2.91'); from gi.repository import Vte; print('VTE available')"
+```
+
+This recovery change covers immediate process crashes. If the GTK desktop process remains running with a blank display, switch to Budgie and report the log and session behavior for further debugging. No on-device boot success has been verified yet.
