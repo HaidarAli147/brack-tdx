@@ -57,6 +57,7 @@ class AppendDesktop(Gtk.Window):
         terminal.set_cursor_blink_mode(Vte.CursorBlinkMode.ON)
         layout.pack_start(terminal, True, True, 0)
         terminal.connect("child-exited", lambda *_: Gtk.main_quit())
+        terminal.connect("key-press-event", self.on_terminal_key_press)
 
         self.show_all()
         # A fullscreen request turns an EWMH desktop surface into a normal
@@ -83,6 +84,21 @@ class AppendDesktop(Gtk.Window):
             None,  # cancellable
             child_ready,
         )
+
+    def on_terminal_key_press(self, terminal, event):
+        # VTE does not configure app-specific copy/paste accelerators itself.
+        # These keys must be consumed before they reach the Bash PTY.
+        required = Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.SHIFT_MASK
+        if (event.state & required) != required:
+            return False
+        key = Gdk.keyval_name(event.keyval)
+        if key in ("v", "V"):
+            terminal.paste_clipboard()
+            return True
+        if key in ("c", "C"):
+            terminal.copy_clipboard()
+            return True
+        return False
 
     def focus_terminal(self):
         self.terminal.grab_focus()
