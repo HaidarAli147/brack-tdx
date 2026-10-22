@@ -40,7 +40,7 @@ sudo apt update
 sudo apt install --no-install-recommends git kitty openbox libgtk-3-bin python3 python3-gi gir1.2-gtk-3.0 wmctrl x11-utils xdg-user-dirs flameshot scrot network-manager wireplumber tint2 brightnessctl bluez
 git clone https://github.com/HaidarAli147/brack-tdx.git
 cd brack-tdx
-git switch feature/append-tdx-one-command-update
+git switch feature/tdx-desktop-core-taskbar-input
 bash install.sh
 ```
 
@@ -106,3 +106,13 @@ xev -event keyboard
 Focus the `xev` window, press the keyboard's volume or Print key, and check its `keysym` name. Laptop Fn settings can change which key event Openbox receives. If `append-media` fails, inspect `wpctl status` and `systemctl --user status pipewire wireplumber`. If `append-capture gui` fails, run `flameshot gui` to see the error. This update changes **TDX shortcuts only**, not Budgie or system-wide keyboard mapping.
 
 These changes are committed but still require testing on the physical Debian machine.
+
+## Integrated desktop shell and keyboard fixes (development)
+
+Append TDX now launches a dedicated GTK3/VTE terminal **desktop surface** using the X11 desktop window type, rather than starting a fullscreen Kitty application. Openbox remains the window manager and other graphical applications open above the desktop surface. The integrated terminal retains the existing slash commands. This is a purpose-built shell component, not a new compositor or Linux kernel.
+
+The screenshot and XF86 volume/mute/brightness keys remain registered inside the dedicated TDX Openbox configuration using absolute executable paths. `Prt Sc` runs Append Capture/Flameshot, and `append-media` handles sound and brightness. Device and X11 session tests are still needed to verify laptop hardware events and audio service availability.
+
+`/taskbar add` enables a dedicated royal-purple tint2 panel with a clock, running application buttons and a tray; `/taskbar remove` switches back to the compact minimized-windows display on the following login. The new panel does not replace the terminal-first workflow.
+
+Install this development branch by checking out `feature/tdx-desktop-core-taskbar-input`, installing the VTE bindings package `gir1.2-vte-2.91`, and running `bash install.sh`. Once changes reach `main`, the usual `update tdx` command can deliver them.
