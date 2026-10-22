@@ -19,6 +19,7 @@ tag = lambda name: f"{{{namespace}}}{name}" if namespace else name
 keyboard = root.find(tag("keyboard"))
 if keyboard is None:
     keyboard = ET.SubElement(root, tag("keyboard"))
+bin_dir = str(Path.home() / '.local/bin')
 shortcuts = {
     "Print": "append-capture gui",
     "S-Print": "append-capture area",
@@ -37,6 +38,6 @@ for key, command in shortcuts.items():
             keyboard.remove(binding)
     binding = ET.SubElement(keyboard, tag("keybind"), {"key": key})
     action = ET.SubElement(binding, tag("action"), {"name": "Execute"})
-    ET.SubElement(action, tag("command")).text = command
+    ET.SubElement(action, tag("command")).text = bin_dir + "/" + command
 tree.write(dest, encoding="utf-8", xml_declaration=True)
 print(f"Append TDX Openbox shortcuts saved to {dest}")
