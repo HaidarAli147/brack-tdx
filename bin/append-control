@@ -71,8 +71,9 @@ def taskbar(action="status"):
         if taskbar_running():
             print("Taskbar already running.")
         else:
+            run("append-taskbar-config")
             with open(os.devnull, "wb") as devnull:
-                proc = subprocess.Popen(["tint2"], stdin=devnull, stdout=devnull, stderr=devnull, start_new_session=True)
+                proc = subprocess.Popen(["tint2", "-c", str(CONFIG / "tint2rc")], stdin=devnull, stdout=devnull, stderr=devnull, start_new_session=True)
             PID.write_text(str(proc.pid))
             print("Taskbar enabled.")
         ENABLED.touch()
