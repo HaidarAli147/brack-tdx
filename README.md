@@ -116,3 +116,11 @@ The screenshot and XF86 volume/mute/brightness keys remain registered inside the
 `/taskbar add` enables a dedicated royal-purple tint2 panel with a clock, running application buttons and a tray; `/taskbar remove` switches back to the compact minimized-windows display on the following login. The new panel does not replace the terminal-first workflow.
 
 Install this development branch by checking out `feature/tdx-desktop-core-taskbar-input`, installing the VTE bindings package `gir1.2-vte-2.91`, and running `bash install.sh`. Once changes reach `main`, the usual `update tdx` command can deliver them.
+
+## Actual X11 desktop session versus standalone test
+
+Append TDX is selected from the display manager's session chooser. The session starts Openbox as the window manager and a GTK/VTE desktop-layer surface that fills the entire X11 screen without using a fullscreen application window. Ordinary graphical windows remain above the desktop surface. This is an X11 desktop **session**, not a new Linux kernel, distribution, or custom window manager.
+
+**Do not run** `python3 ~/.local/bin/append-desktop` inside GNOME or Budgie. The desktop surface now refuses to start without the `APPEND_TDX_SESSION=1` environment set by the actual TDX session launcher. Running a standalone desktop window inside GNOME never creates a separate desktop environment.
+
+After installing, **log out** of GNOME or Budgie and choose **Append TDX** in the display manager. This new code has not been tested on the target machine; keep your existing GNOME/Budgie session installed as a fallback. Keyboard shortcuts registered with Openbox only operate inside the Append TDX session.

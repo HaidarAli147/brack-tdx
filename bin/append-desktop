@@ -12,6 +12,10 @@ from gi.repository import Gdk, GLib, Gtk, Vte
 HOME = Path.home()
 RC = HOME / ".config/append-tdx/bashrc"
 
+# This surface is a desktop-shell component, not a GNOME/Budgie application.
+if os.environ.get("APPEND_TDX_SESSION") != "1" or os.environ.get("XDG_CURRENT_DESKTOP") != "APPEND":
+    sys.exit("Append TDX is a login session. Log out, select 'Append TDX' in your display manager, and log in. Do not launch append-desktop inside GNOME or Budgie.")
+
 class AppendDesktop(Gtk.Window):
     def __init__(self):
         super().__init__(title="Append TDX Desktop")
@@ -22,7 +26,8 @@ class AppendDesktop(Gtk.Window):
         self.set_type_hint(Gdk.WindowTypeHint.DESKTOP)
         self.set_keep_below(True)
         self.set_accept_focus(True)
-        self.set_default_size(1200, 720)
+        screen = Gdk.Screen.get_default()
+        self.set_default_size(screen.get_width(), screen.get_height())
         self.connect("destroy", Gtk.main_quit)
 
         css = Gtk.CssProvider()
@@ -54,7 +59,11 @@ class AppendDesktop(Gtk.Window):
         terminal.connect("child-exited", lambda *_: Gtk.main_quit())
 
         self.show_all()
-        self.fullscreen()
+        # A fullscreen request turns an EWMH desktop surface into a normal
+        # fullscreen application in several X11 window managers. Size it
+        # to the screen without requesting _NET_WM_STATE_FULLSCREEN.
+        self.move(0, 0)
+        self.resize(screen.get_width(), screen.get_height())
         terminal.grab_focus()
         GLib.timeout_add(300, self.focus_terminal)
 
