@@ -21,6 +21,7 @@ class AppendDesktop(Gtk.Window):
         self.set_skip_pager_hint(True)
         self.set_type_hint(Gdk.WindowTypeHint.DESKTOP)
         self.set_keep_below(True)
+        self.set_accept_focus(True)
         self.set_default_size(1200, 720)
         self.connect("destroy", Gtk.main_quit)
 
@@ -42,8 +43,12 @@ class AppendDesktop(Gtk.Window):
         terminal = Vte.Terminal()
         self.terminal = terminal
         terminal.set_scrollback_lines(10000)
-        terminal.set_color_background(Gdk.RGBA(0.129, 0.051, 0.204, 1))
-        terminal.set_color_foreground(Gdk.RGBA(0.95, 0.91, 1.0, 1))
+        bg = Gdk.RGBA()
+        bg.parse("#210D34")
+        fg = Gdk.RGBA()
+        fg.parse("#F3E8FF")
+        terminal.set_color_background(bg)
+        terminal.set_color_foreground(fg)
         terminal.set_cursor_blink_mode(Vte.CursorBlinkMode.ON)
         layout.pack_start(terminal, True, True, 0)
         terminal.connect("child-exited", lambda *_: Gtk.main_quit())
@@ -51,6 +56,7 @@ class AppendDesktop(Gtk.Window):
         self.show_all()
         self.fullscreen()
         terminal.grab_focus()
+        GLib.timeout_add(300, self.focus_terminal)
 
         def child_ready(term, pid, error, *rest):
             if error:
@@ -67,6 +73,13 @@ class AppendDesktop(Gtk.Window):
             None,
             child_ready,
         )
+
+    def focus_terminal(self):
+        self.terminal.grab_focus()
+        window = self.get_window()
+        if window:
+            window.focus(Gdk.CURRENT_TIME)
+        return False
 
 if __name__ == "__main__":
     AppendDesktop()
