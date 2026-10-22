@@ -7,7 +7,8 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
 gi.require_version("Vte", "2.91")
-from gi.repository import Gdk, GLib, Gtk, Vte
+gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, Vte
 
 HOME = Path.home()
 RC = HOME / ".config/append-tdx/bashrc"
@@ -38,8 +39,28 @@ class AppendDesktop(Gtk.Window):
         """)
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
+        overlay = Gtk.Overlay()
+        self.add(overlay)
+        setting = HOME / ".config/append-tdx/wallpaper"
+        has_wallpaper = False
+        if setting.is_file():
+            path = Path(setting.read_text().strip())
+            if path.is_file():
+                try:
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(str(path), screen.get_width(), screen.get_height(), False)
+                    overlay.add(Gtk.Image.new_from_pixbuf(pixbuf))
+                    has_wallpaper = True
+                except GLib.Error as exc:
+                    print("Wallpaper error:", exc, file=sys.stderr)
+        if not has_wallpaper:
+            overlay.add(Gtk.Box())
         layout = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.add(layout)
+        if has_wallpaper:
+            layout.set_margin_start(20)
+            layout.set_margin_end(20)
+            layout.set_margin_top(20)
+            layout.set_margin_bottom(20)
+        overlay.add_overlay(layout)
         header = Gtk.Label(label="APPEND TDX    /settings   /wifi   /taskbar add   update tdx")
         header.set_name("append-header")
         header.set_halign(Gtk.Align.START)
