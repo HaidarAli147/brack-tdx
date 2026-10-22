@@ -3,15 +3,20 @@ if [ -f "$HOME/.bashrc" ]; then . "$HOME/.bashrc"; fi
 export PATH="$HOME/.local/bin:$PATH"
 unalias ls 2>/dev/null || true
 ls() {
-  if [ "$#" -eq 1 ] && [ "$1" = '-rr' ]; then
-    "$HOME/.local/bin/-rr" --list
+  if [ "$#" -ge 1 ] && [ "$1" = '-rr' ]; then
+    shift
+    if [ "${1:-}" = "categories" ]; then
+      "$HOME/.local/bin/-rr" --categories
+    else
+      "$HOME/.local/bin/-rr" --list "$@"
+    fi
   else
     command ls "$@"
   fi
 }
 append-help() {
   printf '\n\033[1;35mAPPEND TDX\033[0m\n'
-  printf '  ls -rr                  List installed GUI apps\n'
+  printf '  ls -rr [CATEGORY]       List GUI apps by category\n'
   printf '  -rr APP NAME            Launch GUI app\n'
   printf '  u -rr APP NAME          Preview and confirm app uninstall\n'
   printf '  append-capture gui      Capture/select/annotate screenshot\n'
@@ -67,3 +72,5 @@ update() {
 }
 
 printf 'Tip: type update tdx to check for and install TDX updates.\n'
+
+function /background() { "$HOME/.local/bin/append-wallpaper" "$@"; }
