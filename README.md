@@ -50,3 +50,9 @@ Log out, select **Append TDX** in your login screen, and sign in. Keep your exis
 For subsequent updates, type `update tdx` inside Append TDX. This updater checks the repository `main` branch and asks for confirmation before running the installer.
 
 **Status: experimental.** Test login, screenshots and media keys on physical hardware before relying on this as your only desktop.
+
+## Wallpaper and app categories
+
+Use `/background set ~/Pictures/wallpaper.jpg` to select a desktop wallpaper, `/background clear` to restore the purple background, or `/background status` to see your selection. Re-enter the Append TDX session to refresh the background. The image renders behind an inset terminal panel to preserve terminal legibility.
+
+Use `ls -rr CATEGORY` to list installed applications by their desktop-file categories, for example `ls -rr Game`, `ls -rr Education`, or `ls -rr Office`. Use `ls -rr categories` to see available category labels. Apps without appropriate Categories metadata may not appear under a filter.

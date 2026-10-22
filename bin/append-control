@@ -113,7 +113,7 @@ def bluetooth():
 
 def settings():
     while True:
-        print("\nAPPEND TDX SETTINGS\n1) Wi-Fi\n2) Volume\n3) Screenshot\n4) Taskbar\n5) Display information\n6) Battery status\n7) Brightness\n8) Bluetooth\n0) Exit")
+        print("\nAPPEND TDX SETTINGS\n1) Wi-Fi\n2) Volume\n3) Screenshot\n4) Taskbar\n5) Display information\n6) Battery status\n7) Brightness\n8) Bluetooth\n9) Wallpaper\n0) Exit")
         choice = input("settings> ").strip()
         if choice == "0": return
         if choice == "1": wifi()
@@ -135,6 +135,12 @@ def settings():
             else: print("No battery detected.")
         elif choice == "7": brightness(input("brightness (up/down/status/5-100)> ").strip())
         elif choice == "8": bluetooth()
+        elif choice == "9":
+            action = input("Wallpaper (set/clear/status)> ").strip()
+            if action == "set":
+                image = input("Image file path> ").strip()
+                run("append-wallpaper", "set", image)
+            elif action in ("clear", "status"): run("append-wallpaper", action)
         else: print("Unknown choice.")
 
 def main():
