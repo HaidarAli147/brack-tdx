@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
-for prog in kitty openbox gtk-launch python3 wmctrl xprop flameshot scrot nmcli wpctl tint2; do
+for prog in git kitty openbox gtk-launch python3 wmctrl xprop flameshot scrot nmcli wpctl tint2; do
   command -v "$prog" >/dev/null 2>&1 || { echo "Missing $prog. Install: sudo apt install kitty openbox libgtk-3-bin python3 python3-gi gir1.2-gtk-3.0 wmctrl x11-utils flameshot scrot xdg-user-dirs network-manager wireplumber tint2 brightnessctl bluez" >&2; exit 1; }
 done
 python3 -c "import gi; gi.require_version('Gtk', '3.0'); from gi.repository import Gtk" || { echo "Missing python3-gi / GTK3 bindings." >&2; exit 1; }
@@ -10,6 +10,7 @@ mkdir -p "$HOME/.local/bin" "$HOME/.config/append-tdx" "$HOME/.config/brack-term
 for name in -rr u brack-update brack-color brack-windows brack-minibar; do
   install -m 755 "bin/$name" "$HOME/.local/bin/$name"
 done
+install -m 755 bin/append-tdx-update "$HOME/.local/bin/append-tdx-update"
 install -m 755 bin/append-control "$HOME/.local/bin/append-control"
 install -m 755 bin/append-capture "$HOME/.local/bin/append-capture"
 install -m 755 bin/append-openbox-config "$HOME/.local/bin/append-openbox-config"
@@ -30,5 +31,6 @@ if [ -f /usr/share/xsessions/brack-terminal.desktop ] && grep -q '^Exec=/usr/loc
   sudo rm /usr/share/xsessions/brack-terminal.desktop
 fi
 echo 'Type /settings or /wifi in the Append TDX terminal; /taskbar add enables the optional taskbar.'
+echo 'Future updates: type update tdx inside the Append TDX terminal.'
 echo 'Append TDX installed. Select Append TDX at the login screen.'
 echo 'Screenshot: PrtSc = editor, Shift+PrtSc = select area, Alt+PrtSc = active window, Ctrl+PrtSc = full screen.'

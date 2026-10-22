@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Append TDX updater: run from the Append TDX terminal using 'update tdx'.
+set -euo pipefail
+REPO_URL="https://github.com/HaidarAli147/brack-tdx.git"
+BRANCH="${APPEND_TDX_UPDATE_BRANCH:-main}"
+if [[ ! "$BRANCH" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ || "$BRANCH" == *..* ]]; then
+  echo "Invalid branch name." >&2; exit 2
+fi
+command -v git >/dev/null || { echo 'git is required: sudo apt install git' >&2; exit 1; }
+tmp="$(mktemp -d -t append-tdx-update-XXXXXXXX)"
+trap 'rm -rf "$tmp"' EXIT
+echo "Checking Append TDX updates from $REPO_URL ($BRANCH)"
+git clone --depth 1 --single-branch --branch "$BRANCH" "$REPO_URL" "$tmp/source"
+if [[ ! -f "$tmp/source/install.sh" || ! -f "$tmp/source/VERSION" ]]; then
+  echo "Update repository is missing installer or version." >&2; exit 1
+fi
+remote="$(git -C "$tmp/source" rev-parse --short HEAD)"
+installed="$(cat "$HOME/.config/append-tdx/installed-commit" 2>/dev/null || true)"
+if [[ "$installed" == "$remote" ]]; then
+  echo "Append TDX is already up to date ($remote)."; exit 0
+fi
+echo "Available version: $(cat "$tmp/source/VERSION") (commit $remote)"
+echo "Installed commit: ${installed:-unknown}"
+printf "Install this update? This runs the repository installer and may ask for sudo. [y/N] "
+read -r answer
+[[ "$answer" == [Yy] ]] || { echo "Cancelled."; exit 0; }
+bash "$tmp/source/install.sh"
+mkdir -p "$HOME/.config/append-tdx"
+printf '%s\n' "$remote" > "$HOME/.config/append-tdx/installed-commit"
+echo "Update installed. Log out and select Append TDX again to load the new session."
