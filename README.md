@@ -25,7 +25,7 @@ Type these commands in the **Append TDX terminal** after choosing the Append TDX
 
 The slash-prefixed commands are **Bash functions loaded by the Append TDX shell**, not executables available in arbitrary system terminals.
 
-The optional taskbar uses tint2. It includes an application list, clock and notification tray. A compact minimized-window tray is used when the taskbar is disabled. Taskbar settings persist between sessions.
+The optional taskbar uses tint2. It includes an application list, clock and notification tray. When the optional taskbar is disabled, no minimized-window popup is shown. Taskbar settings persist between sessions.
 
 ## Screenshot and media keys
 

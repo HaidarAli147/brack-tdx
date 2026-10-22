@@ -7,7 +7,7 @@ export PATH="$HOME/.local/bin:$PATH"
 "$HOME/.local/bin/append-openbox-config"
 openbox --sm-disable --config-file "$HOME/.config/append-tdx/openbox.xml" &
 wm_pid=$!
-cleanup() { kill "$wm_pid" ${bar_pid:-} 2>/dev/null || true; }
+cleanup() { kill "$wm_pid" 2>/dev/null || true; }
 trap cleanup EXIT
 # Verify that Openbox became the session window manager before starting UI.
 ready=0
@@ -23,9 +23,9 @@ fi
 if [ -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
   "$HOME/.local/bin/append-control" taskbar add || true
 fi
-if [ ! -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
-  "$HOME/.local/bin/append-minibar" &
-  bar_pid=$!
+ # Stop old minimized-popup processes left by previous TDX sessions.
+if command -v pkill >/dev/null 2>&1; then
+  pkill -u "$(id -u)" -f "^python3? .*[/]append-minibar$" 2>/dev/null || true
 fi
 "$HOME/.local/bin/append-desktop" &
 desktop_pid=$!
