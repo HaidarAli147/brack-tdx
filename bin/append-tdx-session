@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export APPEND_TDX_SESSION=1
 export XDG_CURRENT_DESKTOP=APPEND
 export XDG_SESSION_DESKTOP=append-tdx
 export PATH="$HOME/.local/bin:$PATH"
@@ -8,7 +9,17 @@ openbox --sm-disable --config-file "$HOME/.config/append-tdx/openbox.xml" &
 wm_pid=$!
 cleanup() { kill "$wm_pid" ${bar_pid:-} 2>/dev/null || true; }
 trap cleanup EXIT
-sleep 1
+# Verify that Openbox became the session window manager before starting UI.
+ready=0
+for _ in $(seq 1 30); do
+  if ! kill -0 "$wm_pid" 2>/dev/null; then break; fi
+  if wmctrl -m 2>/dev/null | grep -q 'Name: Openbox'; then ready=1; break; fi
+  sleep 0.2
+done
+if [ "$ready" -ne 1 ]; then
+  echo "Append TDX: Openbox failed to start. Returning to the login screen." >&2
+  exit 1
+fi
 if [ -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
   "$HOME/.local/bin/append-control" taskbar add || true
 fi
