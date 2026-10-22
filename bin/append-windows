@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""List and activate regular X11 windows. Brack Desktop itself isn't an app tab."""
+"""List and activate regular X11 windows. Append TDX Desktop itself isn't an app tab."""
 import subprocess
 import sys
 
@@ -15,7 +15,7 @@ def windows():
         if len(parts) < 4:
             continue
         wid, desktop, host, title = parts
-        if title == 'Brack Desktop' or title.startswith('Brack Desktop —'):
+        if title == 'Append TDX Desktop' or title.startswith('Append TDX Desktop —'):
             continue
         if desktop == '-1' and not title:
             continue
@@ -43,11 +43,11 @@ def main():
         except ValueError:
             wid = None
         if wid is None:
-            print('Use brack-tabs to see valid app numbers.', file=sys.stderr)
+            print('Use append-tabs to see valid app numbers.', file=sys.stderr)
             return 2
         result = subprocess.run(['wmctrl', '-ia', wid], check=False)
         return result.returncode
-    print('Usage: brack-tabs | brack-switch NUMBER', file=sys.stderr)
+    print('Usage: append-tabs | append-switch NUMBER', file=sys.stderr)
     return 2
 
 

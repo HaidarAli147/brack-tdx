@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 LAUNCHER = Path(__file__).with_name('-rr')
-loader = importlib.machinery.SourceFileLoader('brack_rr_registry', str(LAUNCHER))
+loader = importlib.machinery.SourceFileLoader('append_rr_registry', str(LAUNCHER))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 registry = importlib.util.module_from_spec(spec)
 loader.exec_module(registry)

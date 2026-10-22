@@ -2,13 +2,18 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 for prog in git openbox gtk-launch python3 wmctrl xprop xdotool flameshot scrot nmcli wpctl tint2; do
-  command -v "$prog" >/dev/null 2>&1 || { echo "Missing $prog. Install: sudo apt install kitty openbox libgtk-3-bin python3 python3-gi gir1.2-gtk-3.0 wmctrl x11-utils xdotool gir1.2-vte-2.91 flameshot scrot xdg-user-dirs network-manager wireplumber tint2 brightnessctl bluez" >&2; exit 1; }
+  command -v "$prog" >/dev/null 2>&1 || { echo "Missing $prog. Install: sudo apt install openbox libgtk-3-bin python3 python3-gi gir1.2-gtk-3.0 wmctrl x11-utils xdotool gir1.2-vte-2.91 flameshot scrot xdg-user-dirs network-manager wireplumber tint2 brightnessctl bluez" >&2; exit 1; }
 done
 python3 -c "import gi; gi.require_version('Gtk', '3.0'); gi.require_version('Vte', '2.91'); from gi.repository import Gtk, Vte" || { echo "Missing python3-gi / GTK3 bindings." >&2; exit 1; }
-mkdir -p "$HOME/.local/bin" "$HOME/.config/append-tdx" "$HOME/.config/brack-terminal"
-# Keep older helper names installed to preserve existing commands and user preferences.
-for name in -rr u brack-update brack-color brack-windows brack-minibar; do
+mkdir -p "$HOME/.local/bin" "$HOME/.config/append-tdx"
+for name in -rr u append-windows append-minibar; do
   install -m 755 "bin/$name" "$HOME/.local/bin/$name"
+done
+# Clean up only obsolete helper executables installed by previous TDX releases.
+for old in brack-windows brack-minibar brack-color brack-update; do
+  if [ -f "$HOME/.local/bin/$old" ]; then
+    mv -n "$HOME/.local/bin/$old" "$HOME/.local/bin/$old.tdx-backup"
+  fi
 done
 install -m 755 bin/append-tdx-update "$HOME/.local/bin/append-tdx-update"
 install -m 755 bin/append-control "$HOME/.local/bin/append-control"
@@ -19,22 +24,11 @@ install -m 755 bin/append-taskbar-config "$HOME/.local/bin/append-taskbar-config
 install -m 755 bin/append-capture "$HOME/.local/bin/append-capture"
 install -m 755 bin/append-openbox-config "$HOME/.local/bin/append-openbox-config"
 install -m 644 config/append-bashrc "$HOME/.config/append-tdx/bashrc"
-if [ ! -f "$HOME/.config/append-tdx/kitty.conf" ]; then
-  if [ -f "$HOME/.config/brack-terminal/kitty.conf" ]; then
-    cp "$HOME/.config/brack-terminal/kitty.conf" "$HOME/.config/append-tdx/kitty.conf"
-  else
-    printf 'background #210D34\nforeground #F3E8FF\ncursor #B68AFF\nfont_size 13.0\n' > "$HOME/.config/append-tdx/kitty.conf"
-  fi
-fi
 install -m 644 VERSION "$HOME/.config/append-tdx/version"
 "$HOME/.local/bin/append-openbox-config"
 "$HOME/.local/bin/append-taskbar-config"
 sudo install -m 755 bin/append-tdx-session /usr/local/bin/append-tdx-session
 printf '[Desktop Entry]\nName=Append TDX\nComment=Append Hub terminal-first X11 desktop\nExec=/usr/local/bin/append-tdx-session\nType=Application\nDesktopNames=APPEND\n' | sudo tee /usr/share/xsessions/append-tdx.desktop >/dev/null
-# Only remove our exact legacy launcher entry, not any other session.
-if [ -f /usr/share/xsessions/brack-terminal.desktop ] && grep -q '^Exec=/usr/local/bin/brack-terminal-session$' /usr/share/xsessions/brack-terminal.desktop; then
-  sudo rm /usr/share/xsessions/brack-terminal.desktop
-fi
 echo 'Type /settings or /wifi in the Append TDX terminal; /taskbar add enables the optional taskbar.'
 echo 'Future updates: type update tdx inside the Append TDX terminal.'
 echo 'Append TDX installed. Select Append TDX at the login screen.'

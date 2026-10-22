@@ -24,7 +24,7 @@ if [ -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
   "$HOME/.local/bin/append-control" taskbar add || true
 fi
 if [ ! -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
-  "$HOME/.local/bin/brack-minibar" &
+  "$HOME/.local/bin/append-minibar" &
   bar_pid=$!
 fi
 "$HOME/.local/bin/append-desktop" &

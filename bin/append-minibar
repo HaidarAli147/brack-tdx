@@ -52,17 +52,17 @@ class Minibar:
         self.lookup = icon_lookup()
         self.theme = Gtk.IconTheme.get_default()
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-        self.window.set_title('Brack Minimized Windows')
+        self.window.set_title('Append Hub Minimized Windows')
         self.window.set_decorated(False)
         self.window.set_resizable(False)
         self.window.set_keep_above(True)
         self.window.set_skip_taskbar_hint(True)
         self.window.set_skip_pager_hint(True)
         self.window.set_type_hint(Gdk.WindowTypeHint.DOCK)
-        self.window.set_name('brack-minibar')
+        self.window.set_name('append-minibar')
         self.window.set_accept_focus(False)
         css = Gtk.CssProvider()
-        css.load_from_data(b'''#brack-minibar { background-color: #241039; border-radius: 12px; border: 1px solid #7B2CBF; } button { background: transparent; border: 0; padding: 7px; } button:hover { background: #6A0DAD; }''')
+        css.load_from_data(b'''#append-minibar { background-color: #241039; border-radius: 12px; border: 1px solid #7B2CBF; } button { background: transparent; border: 0; padding: 7px; } button:hover { background: #6A0DAD; }''')
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         self.box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
         self.window.add(self.box)
@@ -78,7 +78,7 @@ class Minibar:
             if len(parts) < 5:
                 continue
             wid, desktop, pid, wmclass, title = parts
-            if title.startswith('Brack Desktop') or title == 'Brack Minimized Windows':
+            if title.startswith('Append TDX Desktop') or title == 'Append Hub Minimized Windows':
                 continue
             properties = command('xprop', '-id', wid, '_NET_WM_STATE', 'WM_STATE')
             if '_NET_WM_STATE_HIDDEN' not in properties and 'Iconic' not in properties:
