@@ -2,7 +2,9 @@
 """Configure an image wallpaper for the Append TDX desktop surface."""
 from pathlib import Path
 import sys
-from PIL import Image
+import gi
+gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import GdkPixbuf
 
 config = Path.home() / ".config/append-tdx"
 config.mkdir(parents=True, exist_ok=True)
@@ -12,17 +14,16 @@ if not args or args[0] == "status":
     print("Wallpaper:", setting.read_text().strip() if setting.exists() else "default purple")
 elif args[0] == "clear":
     setting.unlink(missing_ok=True)
-    print("Wallpaper cleared.")
+    print("Wallpaper cleared (log out and back into Append TDX to apply).")
 elif args[0] == "set" and len(args) >= 2:
     target = Path(" ".join(args[1:])).expanduser().resolve()
     if not target.is_file():
         sys.exit("Image not found.")
     try:
-        with Image.open(target) as img:
-            img.verify()
+        GdkPixbuf.Pixbuf.new_from_file(str(target))
     except Exception:
         sys.exit("Unsupported or invalid image.")
     setting.write_text(str(target) + "\n")
-    print("Wallpaper selected:", target)
+    print("Wallpaper selected:", target, "(log out and back into Append TDX to apply)")
 else:
     sys.exit("Usage: /background set /path/to/image.png | /background clear | /background status")
