@@ -16,6 +16,21 @@ if [ ! -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
   "$HOME/.local/bin/brack-minibar" &
   bar_pid=$!
 fi
-"$HOME/.local/bin/append-desktop" &
-desktop_pid=$!
-wait "$desktop_pid" || true
+logdir="$HOME/.local/state/append-tdx"
+mkdir -p "$logdir"
+logfile="$logdir/session.log"
+printf '\n--- Append TDX session %s ---\n' "$(date -Is)" >> "$logfile"
+start_time=$SECONDS
+set +e
+"$HOME/.local/bin/append-desktop" >> "$logfile" 2>&1
+status=$?
+set -e
+elapsed=$((SECONDS - start_time))
+if [ "$status" -ne 0 ] || [ "$elapsed" -lt 8 ]; then
+  printf 'Integrated desktop terminated (status=%s, uptime=%ss). Starting fallback terminal.\n' "$status" "$elapsed" | tee -a "$logfile" >&2
+  if command -v kitty >/dev/null 2>&1; then
+    kitty --title 'Append TDX Recovery' --start-as maximized -- bash --rcfile "$HOME/.config/append-tdx/bashrc" -i
+  else
+    xterm -title 'Append TDX Recovery' -e bash --rcfile "$HOME/.config/append-tdx/bashrc" -i
+  fi
+fi
