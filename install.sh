@@ -12,6 +12,7 @@ for name in -rr u brack-update brack-color brack-windows brack-minibar; do
 done
 install -m 755 bin/append-tdx-update "$HOME/.local/bin/append-tdx-update"
 install -m 755 bin/append-control "$HOME/.local/bin/append-control"
+install -m 755 bin/append-media "$HOME/.local/bin/append-media"
 install -m 755 bin/append-capture "$HOME/.local/bin/append-capture"
 install -m 755 bin/append-openbox-config "$HOME/.local/bin/append-openbox-config"
 install -m 644 config/append-bashrc "$HOME/.config/append-tdx/bashrc"
