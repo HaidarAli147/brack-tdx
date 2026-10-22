@@ -68,9 +68,10 @@ class AppendDesktop(Gtk.Window):
             ["/bin/bash", "--rcfile", str(RC), "-i"],
             None,
             GLib.SpawnFlags.DEFAULT,
-            None,
-            -1,
-            None,
+            None,  # child_setup
+            None,  # child_setup_data (required by PyGObject on Debian)
+            -1,    # timeout
+            None,  # cancellable
             child_ready,
         )
 
