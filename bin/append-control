@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Append TDX terminal-based settings and system controls (X11/Debian)."""
-import getpass
 import os
 from pathlib import Path
 import re
@@ -113,7 +112,7 @@ def bluetooth():
 
 def settings():
     while True:
-        print("\nAPPEND TDX SETTINGS\n1) Wi-Fi\n2) Volume\n3) Screenshot\n4) Taskbar\n5) Display information\n6) Battery status\n0) Exit")
+        print("\nAPPEND TDX SETTINGS\n1) Wi-Fi\n2) Volume\n3) Screenshot\n4) Taskbar\n5) Display information\n6) Battery status\n7) Brightness\n8) Bluetooth\n0) Exit")
         choice = input("settings> ").strip()
         if choice == "0": return
         if choice == "1": wifi()
