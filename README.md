@@ -78,3 +78,18 @@ Run `/theme list` for presets or `/theme status` to inspect saved colors. The se
 ## Terminal-style taskbar
 
 The optional taskbar (`/taskbar add`) is a **flat, text-first** tint2 panel rather than an icon dock. Running application names use a monospace font, the clock appears as `[HH:MM]`, and the panel background, text, and active-app highlight are generated from the same saved `/theme` colors as the Append TDX desktop. The panel intentionally omits the system tray and app icons for a cohesive terminal aesthetic. `/taskbar remove` disables it, and no old minimized-window popup returns. Re-enter the TDX session after changing themes to regenerate the panel.
+
+## Taskbar stability, notifications and optional widgets
+
+The optional terminal-style tint2 panel no longer reserves a screen strut, to avoid unexpected application resizing/maximize issues. It is inset from the edges, flat, text-first and inherits the current Mint/Royal/custom theme colors. This is a proposed fix to test on the affected laptop, not a hardware-confirmed resolution.
+
+Within the Append TDX terminal:
+
+- `/widgets list` shows available status widgets.
+- `/widgets add wifi`, `/widgets add battery`, `/widgets add notifications` enable text status labels on the taskbar.
+- `/widgets remove wifi` (similarly battery/notifications) removes one.
+- `/taskbar add` enables the panel; `/taskbar remove` disables it.
+
+Changes to enabled widgets take effect after signing out and back into the TDX session. Wi-Fi displays the currently associated SSID; battery shows remaining percentage; notifications display Dunst notification history count, and clicking the notification label recalls a notification when `dunstctl` is available. Notifications use Dunst **if installed** (`sudo apt install dunst` when packages can be installed). Dunst is launched only within Append TDX, not GNOME/Budgie. No system tray is displayed in text-only mode.
+
+If the taskbar still causes window glitches, disable it with `/taskbar remove` and collect `wmctrl -m`, `wmctrl -lG`, and `pgrep -a tint2` from within TDX before trying another panel change.
