@@ -74,3 +74,7 @@ For personal colors, use three quoted HEX codes (background, text, accent):
 ```
 
 Run `/theme list` for presets or `/theme status` to inspect saved colors. The setting persists and is shared by the integrated VTE desktop terminal, header and optional tint2 taskbar. Log out and back into Append TDX to apply a changed theme. Wallpaper selection remains independent.
+
+## Terminal-style taskbar
+
+The optional taskbar (`/taskbar add`) is a **flat, text-first** tint2 panel rather than an icon dock. Running application names use a monospace font, the clock appears as `[HH:MM]`, and the panel background, text, and active-app highlight are generated from the same saved `/theme` colors as the Append TDX desktop. The panel intentionally omits the system tray and app icons for a cohesive terminal aesthetic. `/taskbar remove` disables it, and no old minimized-window popup returns. Re-enter the TDX session after changing themes to regenerate the panel.
