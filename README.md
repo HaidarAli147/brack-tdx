@@ -56,3 +56,21 @@ For subsequent updates, type `update tdx` inside Append TDX. This updater checks
 Use `/background set ~/Pictures/wallpaper.jpg` to select a desktop wallpaper, `/background clear` to restore the purple background, or `/background status` to see your selection. Re-enter the Append TDX session to refresh the background. The image renders behind an inset terminal panel to preserve terminal legibility.
 
 Use `ls -rr CATEGORY` to list installed applications by their desktop-file categories, for example `ls -rr Game`, `ls -rr Education`, or `ls -rr Office`. Use `ls -rr categories` to see available category labels. Apps without appropriate Categories metadata may not appear under a filter.
+
+## Terminal color themes
+
+Inside Append TDX, choose a preset:
+```bash
+/theme mint
+/theme royal
+/theme amethyst
+/theme mono
+/theme light
+```
+
+For personal colors, use three quoted HEX codes (background, text, accent):
+```bash
+/theme custom '#112233' '#E0FFF0' '#55CCAA'
+```
+
+Run `/theme list` for presets or `/theme status` to inspect saved colors. The setting persists and is shared by the integrated VTE desktop terminal, header and optional tint2 taskbar. Log out and back into Append TDX to apply a changed theme. Wallpaper selection remains independent.
