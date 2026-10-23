@@ -32,6 +32,7 @@ append-help() {
   printf '  /settings               Open text-based system settings\n'
   printf '  /wifi                   Scan and connect to Wi-Fi\n'
   printf '  /taskbar add            Enable optional taskbar\n'
+  printf '  /widgets list           Optional Wi-Fi/battery/notice widgets\n'
   printf '  /taskbar remove         Disable optional taskbar\n'
   printf '  update tdx              Install newest Append TDX version\n'
   printf '  exit                    End Append TDX session\n\n'
@@ -78,3 +79,5 @@ printf 'Tip: type update tdx to check for and install TDX updates.\n'
 function /background() { "$HOME/.local/bin/append-wallpaper" "$@"; }
 
 function /theme() { "$HOME/.local/bin/append-theme" "$@"; }
+
+function /widgets() { "$HOME/.local/bin/append-widgets" "$@"; }

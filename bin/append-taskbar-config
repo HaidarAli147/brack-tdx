@@ -24,17 +24,18 @@ border_width = 0
 background_color = #7434A8 90
 background_id = 2
 
-panel_items = TC
+panel_items = TCE
 panel_monitor = all
 panel_position = bottom center horizontal
-panel_size = 100% 30
-panel_margin = 0 0
+panel_size = 96% 32
+panel_margin = 0 6
 panel_padding = 12 2 8
 panel_background_id = 1
 panel_dock = 1
+strut_policy = none
 panel_layer = top
 panel_shrink = 0
-wm_menu = 1
+wm_menu = 0
 
 taskbar_mode = multi_desktop
 taskbar_padding = 5 4 5
@@ -64,6 +65,34 @@ tooltip_padding = 4 4
 tooltip_background_color = #210D34 95
 tooltip_font_color = #F5E9FF 100
 """
+# Optional text widgets, disabled unless explicitly enabled in /widgets.
+widgets_file = out.parent / "widgets"
+enabled = set(widgets_file.read_text().split()) if widgets_file.exists() else set()
+supported = {"wifi", "battery", "notifications"}
+enabled &= supported
+widgets = []
+for item in ("wifi", "battery", "notifications"):
+    if item not in enabled:
+        continue
+    script = Path.home() / ".local/bin/append-widget"
+    widgets.append("\\n".join([
+        "execp = new",
+        "execp_command = " + str(script) + " " + item,
+        "execp_interval = 10" if item != "notifications" else "execp_interval = 5",
+        "execp_font = Monospace 10",
+        "execp_font_color = " + theme["foreground"] + " 100",
+        "execp_padding = 8 0",
+        "execp_background_id = 0",
+        "execp_centered = 1",
+        "execp_markup = 0",
+        "execp_tooltip = " + item,
+        "execp_lclick_command = " + str(script) + " " + item + " click",
+        "",
+    ]))
+if not widgets:
+    template = template.replace("panel_items = TCE", "panel_items = TC")
+else:
+    template += "\\n".join(widgets) + "\\n"
 template = template.replace("#210D34", theme["background"]).replace("#9555D4", theme["accent"]).replace("#7434A8", theme["accent"]).replace("#F5E9FF", theme["foreground"]).replace("#FFFFFF", theme["foreground"])
 out.write_text(template, encoding="utf-8")
 print(out)

@@ -16,6 +16,8 @@ for old in append-minibar brack-windows brack-minibar brack-color brack-update; 
   fi
 done
 install -m 755 bin/append-tdx-update "$HOME/.local/bin/append-tdx-update"
+install -m 755 bin/append-widget "$HOME/.local/bin/append-widget"
+install -m 755 bin/append-widgets "$HOME/.local/bin/append-widgets"
 install -m 755 bin/append-theme "$HOME/.local/bin/append-theme"
 install -m 755 bin/append-wallpaper "$HOME/.local/bin/append-wallpaper"
 install -m 755 bin/append-control "$HOME/.local/bin/append-control"
