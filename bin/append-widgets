@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""Configure optional terminal-style tint2 widgets for Append TDX."""
+import subprocess
+import sys
+from pathlib import Path
+CONFIG=Path.home()/".config/append-tdx"
+CONFIG.mkdir(parents=True,exist_ok=True)
+FILE=CONFIG/"widgets"
+ALLOWED=("wifi","battery","notifications")
+args=sys.argv[1:]
+current=set(FILE.read_text().split()) & set(ALLOWED) if FILE.exists() else set()
+if args and args[0] in ("add","remove") and len(args)==2 and args[1] in ALLOWED:
+    if args[0]=="add":current.add(args[1])
+    else:current.discard(args[1])
+    FILE.write_text("\n".join(sorted(current))+"\n")
+    subprocess.run([str(Path.home()/".local/bin/append-taskbar-config")],check=False)
+    # Keep running taskbar stable: refresh on next session instead of
+    # force-killing live panel while Openbox is managing windows.
+    print("Updated widgets. Log out and sign back into Append TDX to apply.")
+elif not args or args==["list"] or args==["status"]:
+    print("Enabled:",", ".join(sorted(current)) or "(none)")
+    print("Available:",", ".join(ALLOWED))
+    print("Use: /widgets add wifi | /widgets add battery | /widgets add notifications")
+    print("Remove: /widgets remove wifi")
+else:
+    print("Usage: /widgets [list|add NAME|remove NAME]",file=sys.stderr)
+    sys.exit(2)
