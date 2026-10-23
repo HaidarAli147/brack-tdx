@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Append TDX terminal desktop surface. GTK3/VTE, not an external Kitty window."""
 import os
+import json
 from pathlib import Path
 import sys
 import gi
@@ -31,12 +32,19 @@ class AppendDesktop(Gtk.Window):
         self.set_default_size(screen.get_width(), screen.get_height())
         self.connect("destroy", Gtk.main_quit)
 
+        theme = {"background": "#210D34", "foreground": "#F3E8FF", "accent": "#9D4EDD"}
+        try:
+            data = json.loads((HOME / ".config/append-tdx/theme.json").read_text())
+            if all(isinstance(data.get(k), str) and len(data[k]) == 7 and data[k][0] == "#" and all(c in "0123456789abcdefABCDEF" for c in data[k][1:]) for k in theme):
+                theme = data
+        except (OSError, ValueError, TypeError):
+            pass
         css = Gtk.CssProvider()
-        css.load_from_data(b"""
-        #append-desktop { background: #210D34; }
-        #append-desktop box { background: #210D34; }
-        #append-header { color: #DDBBFF; font: 12px Sans; padding: 10px 20px; }
-        """)
+        css.load_from_data((
+            "#append-desktop { background: " + theme["background"] + "; }"
+            "#append-desktop box { background: " + theme["background"] + "; }"
+            "#append-header { color: " + theme["accent"] + "; font: 12px Sans; padding: 10px 20px; }"
+        ).encode("utf-8"))
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         overlay = Gtk.Overlay()
@@ -70,9 +78,9 @@ class AppendDesktop(Gtk.Window):
         self.terminal = terminal
         terminal.set_scrollback_lines(10000)
         bg = Gdk.RGBA()
-        bg.parse("#210D34")
+        bg.parse(theme["background"])
         fg = Gdk.RGBA()
-        fg.parse("#F3E8FF")
+        fg.parse(theme["foreground"])
         terminal.set_color_background(bg)
         terminal.set_color_foreground(fg)
         terminal.set_cursor_blink_mode(Vte.CursorBlinkMode.ON)
