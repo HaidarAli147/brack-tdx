@@ -93,3 +93,7 @@ Within the Append TDX terminal:
 Changes to enabled widgets take effect after signing out and back into the TDX session. Wi-Fi displays the currently associated SSID; battery shows remaining percentage; notifications display Dunst notification history count, and clicking the notification label recalls a notification when `dunstctl` is available. Notifications use Dunst **if installed** (`sudo apt install dunst` when packages can be installed). Dunst is launched only within Append TDX, not GNOME/Budgie. No system tray is displayed in text-only mode.
 
 If the taskbar still causes window glitches, disable it with `/taskbar remove` and collect `wmctrl -m`, `wmctrl -lG`, and `pgrep -a tint2` from within TDX before trying another panel change.
+
+## Fullscreen taskbar behavior
+
+The text-based tint2 panel uses `panel_layer = bottom` rather than `top`, and `strut_policy = follow_size` instead of `none`. This lets fullscreen windows cover the panel and makes maximized windows respect its bottom edge. The panel is anchored to the bottom edge. After updating, run `/taskbar remove` and `/taskbar add` to restart the panel with the regenerated config, or log out/in. This change still needs testing on the target laptop.
