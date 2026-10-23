@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
 """Generate a dedicated Append TDX tint2 panel theme; does not affect other desktops."""
 from pathlib import Path
+import json
+import re
 out = Path.home() / ".config/append-tdx/tint2rc"
 out.parent.mkdir(parents=True, exist_ok=True)
-out.write_text("""# Append TDX taskbar
+theme = {"background": "#210D34", "foreground": "#F3E8FF", "accent": "#9D4EDD"}
+try:
+    obj = json.loads((out.parent / "theme.json").read_text())
+    if all(isinstance(obj.get(k), str) and re.fullmatch(r"#[0-9a-fA-F]{6}", obj[k]) for k in theme):
+        theme = obj
+except (OSError, ValueError, TypeError):
+    pass
+template = """# Append TDX taskbar
 rounded = 10
 border_width = 1
 background_color = #210D34 96
@@ -58,5 +67,7 @@ clock_background_id = 0
 tooltip_padding = 4 4
 tooltip_background_color = #210D34 95
 tooltip_font_color = #F5E9FF 100
-""", encoding="utf-8")
+"""
+template = template.replace("#210D34", theme["background"]).replace("#9555D4", theme["accent"]).replace("#7434A8", theme["accent"]).replace("#F5E9FF", theme["foreground"]).replace("#FFFFFF", theme["foreground"])
+out.write_text(template, encoding="utf-8")
 print(out)

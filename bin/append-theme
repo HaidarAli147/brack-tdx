@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Append TDX color-theme manager. Only changes Append TDX files."""
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+DIR = Path.home() / ".config/append-tdx"
+FILE = DIR / "theme.json"
+PRESETS = {
+    "royal": {"background": "#210D34", "foreground": "#F3E8FF", "accent": "#9D4EDD"},
+    "mint": {"background": "#0D1F1B", "foreground": "#D9FFF1", "accent": "#70E0B3"},
+    "amethyst": {"background": "#180F25", "foreground": "#EDE2FF", "accent": "#A55CFF"},
+    "mono": {"background": "#111111", "foreground": "#EDEDED", "accent": "#AAAAAA"},
+    "light": {"background": "#F4EFF9", "foreground": "#2A1737", "accent": "#7B2CBF"},
+}
+HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+def current():
+    try:
+        obj = json.loads(FILE.read_text())
+        if all(HEX.fullmatch(obj[k]) for k in ("background", "foreground", "accent")):
+            return obj
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return dict(PRESETS["royal"])
+
+def save(colors):
+    DIR.mkdir(parents=True, exist_ok=True)
+    FILE.write_text(json.dumps(colors, indent=2) + "\n")
+    print("Theme saved. Log out and back into Append TDX to apply terminal and taskbar colors.")
+
+def main():
+    args = sys.argv[1:]
+    if not args or args == ["list"]:
+        print("Presets: " + ", ".join(PRESETS))
+        print("Use: /theme mint")
+        print("     /theme custom '#112233' '#EEEEEE' '#55AA99'")
+        print("     /theme status")
+    elif args == ["status"]:
+        print(json.dumps(current(), indent=2))
+    elif len(args) == 1 and args[0] in PRESETS:
+        save(PRESETS[args[0]])
+    elif len(args) == 4 and args[0] == "custom" and all(HEX.fullmatch(v) for v in args[1:]):
+        save(dict(zip(("background", "foreground", "accent"), (v.upper() for v in args[1:]))))
+    else:
+        print("Invalid theme. Use /theme list or /theme custom '#112233' '#EEEEEE' '#55AA99'.", file=sys.stderr)
+        return 2
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

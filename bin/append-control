@@ -113,7 +113,7 @@ def bluetooth():
 
 def settings():
     while True:
-        print("\nAPPEND TDX SETTINGS\n1) Wi-Fi\n2) Volume\n3) Screenshot\n4) Taskbar\n5) Display information\n6) Battery status\n7) Brightness\n8) Bluetooth\n9) Wallpaper\n0) Exit")
+        print("\nAPPEND TDX SETTINGS\n1) Wi-Fi\n2) Volume\n3) Screenshot\n4) Taskbar\n5) Display information\n6) Battery status\n7) Brightness\n8) Bluetooth\n9) Wallpaper\n10) Theme\n0) Exit")
         choice = input("settings> ").strip()
         if choice == "0": return
         if choice == "1": wifi()
@@ -141,6 +141,8 @@ def settings():
                 image = input("Image file path> ").strip()
                 run("append-wallpaper", "set", image)
             elif action in ("clear", "status"): run("append-wallpaper", action)
+        elif choice == "10":
+            run("append-theme", *input("Theme name or custom HEX colors> ").split())
         else: print("Unknown choice.")
 
 def main():
