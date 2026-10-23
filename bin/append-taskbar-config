@@ -33,7 +33,7 @@ panel_padding = 12 2 8
 panel_background_id = 1
 panel_dock = 1
 strut_policy = follow_size
-panel_layer = bottom
+panel_layer = normal
 panel_shrink = 0
 wm_menu = 0
 
