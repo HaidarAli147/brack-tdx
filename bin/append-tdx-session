@@ -20,6 +20,9 @@ if [ "$ready" -ne 1 ]; then
   echo "Append TDX: Openbox failed to start. Returning to the login screen." >&2
   exit 1
 fi
+if command -v dunst >/dev/null 2>&1 && ! pgrep -u "$(id -u)" -x dunst >/dev/null 2>&1; then
+  dunst >/dev/null 2>&1 &
+fi
 if [ -f "$HOME/.config/append-tdx/taskbar.enabled" ]; then
   "$HOME/.local/bin/append-control" taskbar add || true
 fi
