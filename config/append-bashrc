@@ -76,3 +76,5 @@ update() {
 printf 'Tip: type update tdx to check for and install TDX updates.\n'
 
 function /background() { "$HOME/.local/bin/append-wallpaper" "$@"; }
+
+function /theme() { "$HOME/.local/bin/append-theme" "$@"; }
