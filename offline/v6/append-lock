@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if ! command -v i3lock >/dev/null 2>&1; then
+  echo "Install i3lock first: sudo apt install i3lock" >&2
+  exit 1
+fi
+image="$HOME/.config/append-tdx/lock-background.png"
+if [[ -r "$image" ]]; then exec i3lock -i "$image"; fi
+exec i3lock -c 210d34
