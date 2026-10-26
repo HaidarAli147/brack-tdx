@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""Keep optional custom taskbar margin and workspace count in Openbox config."""
+from pathlib import Path
+import subprocess
+import xml.etree.ElementTree as ET
+home=Path.home()
+conf=home/'.config/append-tdx'
+p=conf/'openbox.xml'
+if not p.exists():
+    raise SystemExit('Missing Openbox config')
+tree=ET.parse(p)
+root=tree.getroot()
+ns=root.tag[1:].split('}')[0] if root.tag.startswith('{') else ''
+if ns: ET.register_namespace('',ns)
+tag=lambda name:f'{{{ns}}}{name}' if ns else name
+m=root.find(tag('margins'))
+if m is None:m=ET.SubElement(root,tag('margins'))
+b=m.find(tag('bottom'))
+if b is None:b=ET.SubElement(m,tag('bottom'))
+b.text='32' if (conf/'taskbar.enabled').exists() else '0'
+desks=root.find(tag('desktops'))
+if desks is None: desks=ET.SubElement(root,tag('desktops'))
+number=desks.find(tag('number'))
+if number is None:number=ET.SubElement(desks,tag('number'))
+number.text='1'
+tree.write(p,encoding='utf-8',xml_declaration=True)
+subprocess.run(['openbox','--reconfigure'],check=False)
